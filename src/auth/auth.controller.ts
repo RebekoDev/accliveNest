@@ -7,8 +7,9 @@ export class AuthController {
   constructor(private authServise: AuthService) {}
 
   @Post('auth/login')
-  login() {
-    return this.authServise.login();
+  login(@Body() user: Users) {
+    const test = this.authServise.login(user);
+    return test;
   }
 
   @Post('auth/logout')
