@@ -2,14 +2,13 @@ import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { genSalt, hash, compare } from 'bcrypt';
 import { UserDTO } from '../users/users.dto';
 import { saltRounds } from '../server.config';
-import { Users } from '../users/users.schema';
 import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class AuthService {
   constructor(private usersService: UsersService) {}
 
-  async login(user: UserDTO): Promise<Users | Error> {
+  async login(user: UserDTO): Promise<UserDTO | Error> {
     try {
       const validUser = await this.usersService.getUserByUsername(
         user.username,
@@ -33,7 +32,7 @@ export class AuthService {
     }
   }
 
-  async registration(user: UserDTO): Promise<Users | Error> {
+  async registration(user: UserDTO): Promise<UserDTO | Error> {
     try {
       const validUser = await this.usersService.getUserByUsername(
         user.username,
