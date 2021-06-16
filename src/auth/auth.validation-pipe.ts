@@ -1,9 +1,7 @@
 import {
   PipeTransform,
   Injectable,
-  ArgumentMetadata,
-  HttpException,
-  HttpStatus,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { UserDTO } from '../users/users.dto';
 
@@ -11,14 +9,11 @@ import { UserDTO } from '../users/users.dto';
 export class ValidationPipe implements PipeTransform {
   transform(value: UserDTO) {
     if (!value.username) {
-      throw new HttpException(
-        'Не введено имя пользователя',
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new UnauthorizedException('Не введено имя пользователя');
     }
 
-    if (!value.username) {
-      throw new HttpException('Не введен пароль', HttpStatus.BAD_REQUEST);
+    if (!value.password) {
+      throw new UnauthorizedException('Не введен пароль');
     }
     return value;
   }

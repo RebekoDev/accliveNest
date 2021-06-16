@@ -1,4 +1,4 @@
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { genSalt, hash, compare } from 'bcrypt';
 import { UserDTO } from '../users/users.dto';
 import { saltRounds } from '../server.config';
@@ -14,17 +14,11 @@ export class AuthService {
         user.username,
       );
       if (!validUser) {
-        return new HttpException(
-          'Данный пользователь не найден',
-          HttpStatus.UNAUTHORIZED,
-        );
+        return new UnauthorizedException('Данный пользователь не найден');
       }
       const isValidUser = await compare(user.password, validUser.password);
       if (!isValidUser) {
-        return new HttpException(
-          'Введен неверный пароль',
-          HttpStatus.UNAUTHORIZED,
-        );
+        return new UnauthorizedException('Введен неверный пароль');
       }
       return validUser;
     } catch (e) {
@@ -38,9 +32,8 @@ export class AuthService {
         user.username,
       );
       if (validUser) {
-        return new HttpException(
+        return new UnauthorizedException(
           'Пользователь с таким именем уже существует',
-          HttpStatus.CONFLICT,
         );
       }
       const salt = await genSalt(saltRounds);
