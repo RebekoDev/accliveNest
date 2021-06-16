@@ -14,4 +14,30 @@ export class UsersService {
       console.error(e);
     }
   }
+
+  async getUserByUsername(username: string): Promise<Users> {
+    try {
+      return await this.userModel.findOne({
+        username: username,
+      });
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  async setUser(username: string, passwordHash: string): Promise<Users> {
+    try {
+      const createUser = new this.userModel({
+        username: username,
+        password: passwordHash,
+      });
+      return createUser.save();
+    } catch (e) {
+      return e;
+    }
+  }
+
+  async deleteUser(userId: string) {
+    return 'delete user';
+  }
 }

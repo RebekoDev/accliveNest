@@ -1,20 +1,19 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { genSalt, hash, compare } from 'bcrypt';
-import { UserDTO } from './auth.dto';
+import { UserDTO } from '../users/users.dto';
 import { saltRounds } from '../server.config';
-import { Users, UsersDocument } from './auth.schema';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Users } from '../users/users.schema';
+import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class AuthService {
-  constructor(@InjectModel('users') private userModel: Model<UsersDocument>) {}
+  constructor(private usersService: UsersService) {}
 
   async login(user: UserDTO): Promise<Users | Error> {
     try {
-      const validUser = await this.userModel.findOne({
-        username: user.username,
-      });
+      const validUser = await this.usersService.getUserByUsername(
+        user.username,
+      );
       if (!validUser) {
         return new HttpException(
           'Данный пользователь не найден',
@@ -34,17 +33,25 @@ export class AuthService {
     }
   }
 
-  async registration(user: UserDTO): Promise<Users> {
+  async registration(user: UserDTO): Promise<Users | Error> {
     try {
+      const validUser = await this.usersService.getUserByUsername(
+        user.username,
+      );
+      if (validUser) {
+        return new HttpException(
+          'Пользователь с таким именем уже существует',
+          HttpStatus.CONFLICT,
+        );
+      }
       const salt = await genSalt(saltRounds);
       const passwordHash = await hash(user.password, salt);
-      const createUser = new this.userModel({
-        username: user.username,
-        password: passwordHash,
-      });
-      return createUser.save();
+      const createUser = await this.usersService.setUser(
+        user.username,
+        passwordHash,
+      );
+      return createUser;
     } catch (e) {
-      console.error(e);
       return e;
     }
   }
