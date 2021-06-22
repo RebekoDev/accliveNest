@@ -1,7 +1,6 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { genSalt, hash, compare } from 'bcrypt';
 import { UserDTO } from '../users/users.dto';
-import { saltRounds } from '../server.config';
 import { UsersService } from '../users/users.service';
 
 @Injectable()
@@ -36,7 +35,7 @@ export class AuthService {
           'Пользователь с таким именем уже существует',
         );
       }
-      const salt = await genSalt(saltRounds);
+      const salt = await genSalt(+process.env.SALT_ROUNDS);
       const passwordHash = await hash(user.password, salt);
       const createUser = await this.usersService.setUser(
         user.username,

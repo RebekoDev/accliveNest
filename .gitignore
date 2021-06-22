@@ -2,3 +2,4 @@ node_modules
 src/server.config.ts
 dist
 .vscode
+.env
